@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, Switch, TextInput } from "react-native";
+import {View,Text,Image, StyleSheet,ScrollView,TouchableOpacity,Switch,TextInput,Alert,Platform} from "react-native";
+import { Picker } from '@react-native-picker/picker';
+import { Slider } from '@react-native-community/slider';
 
 import img1 from "./assets/celticsxwarriors.png";
 import img2 from "./assets/arsenalxchelsea.png";
@@ -10,13 +12,18 @@ import img5 from "./assets/realxbarca.png";
 const Card = ({ title, description, image }) => {
   const [showDescription, setShowDescription] = useState(false);
   const [isEnabled, setIsEnabled] = useState(false);
-  const [palpite, setPalpite] = useState(""); // State for the "palpite" input
+  const [palpite, setPalpite] = useState("");
 
   const toggleSwitch = () => setIsEnabled(prev => !prev);
 
   const handlePalpiteSubmit = () => {
-    alert(`Seu palpite para ${title}: ${palpite}`);
-    setPalpite(""); // Clear input after submission
+    const message = `Seu palpite para ${title}: ${palpite}`;
+    if (Platform.OS === 'android') {
+      Alert.alert("Palpite enviado", message);
+    } else {
+      Alert.alert("Palpite enviado", message);
+    }
+    setPalpite("");
   };
 
   return (
@@ -29,8 +36,6 @@ const Card = ({ title, description, image }) => {
         {showDescription && (
           <>
             <Text style={styles.description}>{description}</Text>
-
-            {/* Input for the palpite */}
             <View style={styles.inputContainer}>
               <TextInput
                 style={styles.input}
@@ -43,15 +48,13 @@ const Card = ({ title, description, image }) => {
                 <Text style={styles.buttonText}>Palpite</Text>
               </TouchableOpacity>
             </View>
-
-            {/* Switch for notifications */}
             <View style={styles.switchContainer}>
               <Text style={styles.switchLabel}>Receber notificações</Text>
               <Switch
                 value={isEnabled}
                 onValueChange={toggleSwitch}
-                trackColor={{ false: "#grenn", true: "#green" }}
-                thumbColor={isEnabled ? "#white" : "#f4f3f4"}
+                trackColor={{ false: "#767577", true: "#81b0ff" }}
+                thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
               />
             </View>
           </>
@@ -62,9 +65,41 @@ const Card = ({ title, description, image }) => {
 };
 
 const App = () => {
+  const [selectedSport, setSelectedSport] = useState("futebol");
+  const [confidence, setConfidence] = useState(50);
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.headerText}>Descrição</Text>
+
+      <View style={styles.selectorContainer}>
+        <Text style={styles.selectorLabel}>Escolha seu esporte preferido:</Text>
+        <View style={styles.pickerWrapper}>
+          <Picker
+            selectedValue={selectedSport}
+            onValueChange={(itemValue) => setSelectedSport(itemValue)}
+            dropdownIconColor="#fff"
+            style={styles.picker}
+          >
+            <Picker.Item label="Futebol" value="futebol" />
+            <Picker.Item label="Basquete" value="basquete" />
+            <Picker.Item label="Tênis" value="tenis" />
+            <Picker.Item label="Vôlei" value="volei" />
+          </Picker>
+        </View>
+        <Text style={styles.selectorLabel}>Confiança no palpite: {confidence}%</Text>
+        <Slider
+          style={{ width: 300, height: 40 }}
+          minimumValue={0}
+          maximumValue={100}
+          step={1}
+          minimumTrackTintColor="#1EB1FC"
+          maximumTrackTintColor="#444"
+          thumbTintColor="#1EB1FC"
+          value={confidence}
+          onValueChange={setConfidence}
+        />
+      </View>
 
       <Card
         title="Celtics x Warriors"
@@ -170,6 +205,30 @@ const styles = StyleSheet.create({
     fontSize: 25,
     marginBottom: 20,
     textAlign: "center",
+  },
+  selectorContainer: {
+    width: '90%',
+    backgroundColor: '#222',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 20,
+  },
+  selectorLabel: {
+    color: '#fff',
+    fontSize: 14,
+    marginBottom: 5,
+  },
+  pickerWrapper: {
+    borderWidth: 1,
+    borderColor: '#555',
+    borderRadius: 8,
+    overflow: 'hidden',
+    marginBottom: 15,
+  },
+  picker: {
+    height: 50,
+    color: '#fff',
+    backgroundColor: '#333',
   },
   imageCard: {
     alignItems: "center",
